@@ -1,5 +1,5 @@
 name: spellcheck
-version: "0.2.0"
+version: "0.2.1"
 description: "Corrección ortográfica con LanguageTool: /spellcheck abre un editor inline y manda el texto corregido como prompt."
 author: rjmalagon
 license: MIT
