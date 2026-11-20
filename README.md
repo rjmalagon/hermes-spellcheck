@@ -69,6 +69,21 @@ cp ~/.hermes/plugins/spellcheck/desktop/plugin.js ~/.hermes/desktop-plugins/spel
 Aviso: el id del paquete es `spellcheck`; el panel standalone de desarrollo es
 `spellcheck-panel`. Si tienes ambos activos verás dos paneles "Spellcheck": desactiva uno.
 
+### Cómo abrir el panel
+
+Funciona igual en la vista **Simple** y en la **Avanzada**. El desktop guarda un layout
+persistido distinto por vista, y en la avanzada la columna derecha ya la ocupan
+`files`/`review`, así que un pane adoptado puede quedar como pestaña no activa. Para no
+depender del layout, hay tres vías estables:
+
+| Vía | Cómo |
+|---|---|
+| Sidebar | fila **Spellcheck** en la barra lateral |
+| Paleta | `CMD+K` / `Ctrl+K` -> **Spellcheck: abrir panel** |
+| Ruta | `#/spellcheck` |
+
+El comando `/spellcheck` no cambia: solo escribe el borrador y el panel lo muestra.
+
 ### Endpoint de LanguageTool
 
 El default del repo es `http://localhost:8010/v2/check`. Se cambia sin tocar código:
