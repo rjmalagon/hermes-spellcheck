@@ -58,6 +58,31 @@ copia `desktop/plugin.js` a `~/.hermes/desktop-plugins/spellcheck/plugin.js`.
 python3 -m unittest discover -s tests -v
 ```
 
+## Construido con una Mezcla de Agentes (MoA) en Hermes Agent
+
+Este plugin se desarrolló dentro de **Hermes Agent v0.23.2** con una
+**Mixture of Agents**: varios modelos de referencia proponen y critican en paralelo
+sobre el estado de la tarea, y un único modelo agregador —el que tiene acceso a
+herramientas— ejecuta, verifica y consolida. Todo el ciclo (diseño, diagnóstico del
+desfase de offsets UTF-16 de LanguageTool, tests, empaquetado, firma SSH del commit y
+publicación) corrió como una sesión de Hermes.
+
+Preset usado: `Rapidos-poderosos`.
+
+| Rol | Modelo |
+|---|---|
+| Agregador / ejecutor | `nous:deepseek/deepseek-v4.1-flash-1017` |
+| Referencia | `nous:z-ai/glm-5.3-flash` |
+| Referencia | `nous:qwen/qwen3.8-flash` |
+| Referencia | `nous:deepseek/deepseek-v4.1-flash-1017` |
+| Referencia | `nous:xiaomi/mimo-v2.6-flash` |
+| Referencia | `nous:tencent/hy4-flash:free` |
+| Referencia | `nous:minimax/minimax-m3.1-flash` |
+
+Notas: el agregador también participó como referencia (misma familia `deepseek-v4.1-flash-1017`);
+`nous:ornith/ornith-1.5-122b` y `openrouter:thinkingmachines/inkling-2-small:free` estaban
+configurados pero no disponibles en la sesión, así que no se listan como participantes.
+
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).
