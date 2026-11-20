@@ -21,13 +21,94 @@ En CLI/TUI/mensajería responde texto plano con el texto corregido y la lista nu
 
 ## Instalación
 
+### Requisitos
+
+1. **Hermes Agent** (probado en v0.23.2). El panel requiere Hermes Desktop; sin desktop,
+   `/spellcheck` responde texto plano.
+2. **Servidor LanguageTool** accesible desde la máquina donde corre el gateway.
+
+### Opción A - gestor de plugins (recomendada)
+
+El repo es público, así que no pide credenciales:
+
 ```bash
 hermes plugins install rjmalagon/hermes-spellcheck --enable
 ```
 
-La mitad desktop se copia a `~/.hermes/desktop-plugins/`; actívala en
-**Capabilities → Plugins** (esa mitad es opt-in por diseño). Alternativa manual:
-copia `desktop/plugin.js` a `~/.hermes/desktop-plugins/spellcheck/plugin.js`.
+Instala la mitad de agente (`/spellcheck`, `/corregir`) y recarga el gateway en vivo
+(`reload-plugins`), sin reiniciar. Para fijar un commit exacto, `--ref` acepta un
+**SHA completo de 40 caracteres** (no un tag):
+
+```bash
+git ls-remote https://github.com/rjmalagon/hermes-spellcheck.git refs/tags/v0.2.2
+hermes plugins install rjmalagon/hermes-spellcheck --ref <sha-completo> --enable
+```
+
+### Opción B - manual con git
+
+```bash
+git clone https://github.com/rjmalagon/hermes-spellcheck.git
+ln -s "$PWD/hermes-spellcheck" ~/.hermes/plugins/spellcheck
+hermes plugins enable spellcheck
+```
+
+### Mitad desktop (opt-in)
+
+Al instalar el paquete, Hermes copia `desktop/plugin.js` a
+`~/.hermes/desktop-plugins/spellcheck/`, pero esa mitad queda **apagada por diseño**:
+actívala en **Capabilities -> Plugins**. Si no aparece: `CMD+K` / `Ctrl+K`
+-> **Reload desktop plugins**.
+
+Si la copia automática no ocurre:
+
+```bash
+mkdir -p ~/.hermes/desktop-plugins/spellcheck
+cp ~/.hermes/plugins/spellcheck/desktop/plugin.js ~/.hermes/desktop-plugins/spellcheck/plugin.js
+```
+
+Aviso: el id del paquete es `spellcheck`; el panel standalone de desarrollo es
+`spellcheck-panel`. Si tienes ambos activos verás dos paneles "Spellcheck": desactiva uno.
+
+### Endpoint de LanguageTool
+
+El default del repo es `http://localhost:8010/v2/check`. Se cambia sin tocar código:
+
+```bash
+# en ~/.hermes/.env
+SPELLCHECK_ENDPOINT=http://localhost:8010/v2/check
+```
+
+o por invocación:
+
+```text
+/spellcheck --endpoint http://localhost:8010/v2/check <texto>
+```
+
+Si no tienes servidor:
+
+```bash
+docker run -d -p 8010:8010 erikvl87/languagetool
+```
+
+o usa el API oficial `https://languagetool.org/v2/check` (tu texto viaja a un tercero).
+
+### Verificar
+
+```text
+/spellcheck El otro dia fui a la tienda y compre un ejmplio.
+```
+
+Debe responder con el resumen y, en desktop, el panel con las marcas
+(rojo = ortografía, ámbar = gramática/estilo).
+
+### Actualizar
+
+```bash
+hermes plugins update spellcheck
+```
+
+Instalar encima sobrescribe la copia local: si tu endpoint vive ahí, muévelo antes a
+`SPELLCHECK_ENDPOINT`.
 
 ## Uso
 
@@ -79,9 +160,7 @@ Preset usado: `Rapidos-poderosos`.
 | Referencia | `nous:tencent/hy4-flash:free` |
 | Referencia | `nous:minimax/minimax-m3.1-flash` |
 
-Notas: el agregador también participó como referencia (misma familia `deepseek-v4.1-flash-1017`);
-`nous:ornith/ornith-1.5-122b` y `openrouter:thinkingmachines/inkling-2-small:free` estaban
-configurados pero no disponibles en la sesión, así que no se listan como participantes.
+Nota: el agregador también participó como referencia (misma familia `deepseek-v4.1-flash-1017`).
 
 ## Licencia
 
