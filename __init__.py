@@ -28,7 +28,7 @@ def _drafts() -> Path:
 
 
 def _parse(raw: str):
-    opts = {'lang': 'es', 'picky': True, 'endpoint': DEFAULT_ENDPOINT}
+    opts = {'lang': 'es', 'picky': True, 'endpoint': None}
     s = (raw or '').strip()
     while s.startswith('--'):
         head, _, tail = s.partition(' ')
@@ -90,8 +90,9 @@ def _cleanup(directory: Path, days: int = 7) -> None:
 def _run_check(text: str, opts: dict, ctx) -> str:
     if len(text) > 60000:
         return '✗ texto demasiado largo (%d caracteres; maximo 60 000)' % len(text)
+    endpoint = opts['endpoint'] or lt.configured_endpoint()
     try:
-        payload = lt.check(text, opts['lang'], opts['endpoint'], opts['picky'])
+        payload = lt.check(text, opts['lang'], endpoint, opts['picky'])
     except lt.LTError as exc:
         return '✗ ' + str(exc)
     matches, dropped = lt.normalize(text, payload)
@@ -110,7 +111,7 @@ def _run_check(text: str, opts: dict, ctx) -> str:
         summary += ' · %d omitidos' % dropped
     payload_out = {
         'id': draft_id, 'created': int(time.time()), 'text': text,
-        'lang': lang, 'endpoint': opts['endpoint'],
+        'lang': lang, 'endpoint': endpoint,
         'picky': bool(opts['picky']), 'matches': matches, 'summary': summary,
     }
     body = json.dumps(payload_out, ensure_ascii=False)

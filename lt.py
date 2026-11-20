@@ -26,9 +26,31 @@ def u16_to_cp(text: str, units: int) -> int:
     return len(text)
 
 
-def check(text: str, lang: str = "es", endpoint: str = DEFAULT_ENDPOINT,
+def configured_endpoint() -> str:
+    '''Endpoint efectivo, resuelto en CADA llamada.
+
+    Orden: ajuste del plugin (`plugins.entries.spellcheck.settings.endpoint`),
+    variable `SPELLCHECK_ENDPOINT`, default del paquete.
+    '''
+    try:
+        from hermes_cli.config import load_config
+        cfg = load_config() or {}
+        entry = ((cfg.get("plugins") or {}).get("entries") or {}).get("spellcheck") or {}
+        settings = entry.get("settings") if isinstance(entry, dict) else None
+        value = (settings or {}).get("endpoint") if isinstance(settings, dict) else None
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    except Exception:
+        pass
+    env = os.environ.get("SPELLCHECK_ENDPOINT")
+    if env and env.strip():
+        return env.strip()
+    return DEFAULT_ENDPOINT
+
+
+def check(text: str, lang: str = "es", endpoint: str | None = None,
           picky: bool = False, timeout: float = 15.0) -> dict:
-    url = endpoint.strip() or DEFAULT_ENDPOINT
+    url = (endpoint or configured_endpoint()).strip() or DEFAULT_ENDPOINT
     if "/v2/check" not in url:
         url = url.rstrip("/") + "/v2/check"
     data = {"text": text, "language": lang}
