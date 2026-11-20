@@ -1,5 +1,5 @@
 /** Spellcheck — panel nativo. Coordenadas UTF-16 (las de JS), re-revisión y picky. */
-import { host } from '@hermes/plugin-sdk'
+import { PALETTE_AREA, ROUTES_AREA, SIDEBAR_NAV_AREA, host } from '@hermes/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 import { jsx, jsxs } from 'react/jsx-runtime'
 
@@ -374,12 +374,44 @@ export default {
   id: ID,
   name: 'Spellcheck',
   register(ctx) {
-    ctx.register({
-      id: 'pane',
-      area: 'panes',
-      title: 'Spellcheck',
-      data: { placement: 'right', width: '380px', minWidth: '300px', dock: { pane: 'workspace', pos: 'right' } },
-      render: function () { return jsx(Pane, {}) }
-    })
+    ctx.registerMany([
+      {
+        id: 'pane',
+        area: 'panes',
+        title: 'Spellcheck',
+        data: {
+          placement: 'right',
+          width: '380px',
+          minWidth: '300px',
+          collapsible: true,
+          revealAliases: ['spellcheck', 'ortografia'],
+          dock: { pane: 'workspace', pos: 'right' }
+        },
+        render: function () { return jsx(Pane, {}) }
+      },
+      {
+        id: 'page',
+        area: ROUTES_AREA,
+        data: { path: '/spellcheck' },
+        render: function () {
+          return jsx('div', { className: 'h-full min-w-0 w-full overflow-hidden', children: jsx(Pane, {}) })
+        }
+      },
+      {
+        id: 'nav',
+        area: SIDEBAR_NAV_AREA,
+        data: { path: '/spellcheck', label: 'Spellcheck', codicon: 'checklist' }
+      },
+      {
+        id: 'open',
+        area: PALETTE_AREA,
+        data: {
+          id: 'spellcheck.open',
+          label: 'Spellcheck: abrir panel',
+          keywords: ['spellcheck', 'ortografia', 'corregir', 'languagetool'],
+          run: function () { host.navigate('/spellcheck') }
+        }
+      }
+    ])
   }
 }
